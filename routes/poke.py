@@ -4,6 +4,7 @@ from openai import OpenAI
 import base64
 from dotenv import load_dotenv
 from models.poke_card import Poke
+from dictionaries.additional_poke_prompts import card_type
 
 
 load_dotenv()
@@ -16,8 +17,8 @@ prompt = """
 2. Study Studio Ghibli Style: Familiarize yourself with the distinctive features of Studio Ghibli's art style, including: - Soft, vibrant color palettes - Detailed backgrounds with a focus on nature - Expressive character designs with large, emotive eyes - Use of light and shadow to create depth
 3. Sketch the Transformation: Create a preliminary sketch that incorporates the Ghibli style elements into the original image.
 4. Apply Color and Texture: Use soft, vibrant colors typical of Studio Ghibli films. Pay attention to textures that mimic traditional animation techniques.
-5. Refine Details: Add intricate details to the background and characters, ensuring they align with the Ghibli aesthetic.
-6. Final Adjustments: Make any necessary adjustments to lighting, contrast, and saturation to achieve a cohesive look.
+5. Refine Details: Add intricate details to the background and characters, ensuring they align with the Ghibli aesthetic, ensure humans have their mouths are closed.
+7. Final Adjustments: Make any necessary adjustments to lighting, contrast, and saturation to achieve a cohesive look.
 
 """
 
@@ -25,13 +26,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/poke")
 
 
-def encode_image(file_path: str = "input_image.jpg"):
+def encode_image(file_path: str = "input/input_image.jpeg"):
     with open(file_path, "rb") as f:
         base64_image = base64.b64encode(f.read()).decode("utf-8")
     return base64_image
 
 
-@router.put("/card")
+@router.post("/image")
 def create_card(poke: Poke):
     response = client.responses.create(
         model="gpt-5",
@@ -41,7 +42,7 @@ def create_card(poke: Poke):
                 "content": [
                     {
                         "type": "input_text",
-                        "text": prompt + poke.additional_prompt,
+                        "text": prompt + card_type[poke.type],
                     },
                     {
                         "type": "input_image",
@@ -53,7 +54,7 @@ def create_card(poke: Poke):
         tools=[
             {
                 "type": "image_generation",
-                "size": "1536x1024" if poke.portrait else "1024x1536",
+                "size": "1024x1536" if poke.portrait else "1536x1024",
             }
         ],
     )
@@ -66,7 +67,7 @@ def create_card(poke: Poke):
 
     if image_data:
         image_base64 = image_data[0]
-        with open("outputs/us.png", "wb") as f:
+        with open("output/us.png", "wb") as f:
             f.write(base64.b64decode(image_base64))
     else:
         print(response.output.content)

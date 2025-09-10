@@ -4,8 +4,8 @@ from typing import Optional
 
 class Poke(BaseModel):
     name: str
-    card_type: str
+    type: str
     stage: int
     portrait: bool
-    special_event: Optional[str]
-    additional_prompt: Optional[str]
+    special_event: Optional[str] = None
+    additional_prompt: Optional[str] = None
