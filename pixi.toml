@@ -1,0 +1,18 @@
+[workspace]
+authors = ["Matthew Boccalon <matthew.boccalon@live.ca>"]
+channels = ["conda-forge"]
+name = "card-builder-api"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks]
+fast = "fastapi dev main.py"
+start = "uvicorn main:app --reload --reload-dir ./"
+
+[dependencies]
+fastapi = ">=0.116.1,<0.117"
+python = ">=3.13.7,<3.14"
+openai = ">=1.107.0,<2"
+python-dotenv = ">=1.1.1,<2"
+uvicorn = ">=0.35.0,<0.36"
+httpx = ">=0.28.1,<0.29"
