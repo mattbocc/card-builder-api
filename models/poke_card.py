@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class Poke(BaseModel):
-    name: str
+    image_name: str
     type: str
     stage: int
     portrait: bool

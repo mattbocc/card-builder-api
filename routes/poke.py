@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+import os
 import logging
-from openai import OpenAI
 import base64
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from openai import OpenAI
 from dotenv import load_dotenv
 from models.poke_card import Poke
 from dictionaries.additional_poke_prompts import card_type
@@ -26,14 +27,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/poke")
 
 
-def encode_image(file_path: str = "input/input_image.jpeg"):
+def encode_image(file_path: str = "input/poke/input_image.jpeg"):
     with open(file_path, "rb") as f:
         base64_image = base64.b64encode(f.read()).decode("utf-8")
     return base64_image
 
 
-@router.post("/image")
+@router.post("/image/create")
 def create_card(poke: Poke):
+    card_prompt = prompt + card_type[poke.type]
+    print(card_prompt)
     response = client.responses.create(
         model="gpt-5",
         input=[
@@ -42,7 +45,7 @@ def create_card(poke: Poke):
                 "content": [
                     {
                         "type": "input_text",
-                        "text": prompt + card_type[poke.type],
+                        "text": card_prompt,
                     },
                     {
                         "type": "input_image",
@@ -67,7 +70,31 @@ def create_card(poke: Poke):
 
     if image_data:
         image_base64 = image_data[0]
-        with open("output/us.png", "wb") as f:
+        with open("output/poke/us.png", "wb") as f:
             f.write(base64.b64decode(image_base64))
     else:
         print(response.output.content)
+
+
+@router.post("/image/upload")
+async def upload_image(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        with open(f"input/poke/{file.filename}", "wb") as f:
+            f.write(contents)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {"message": "Successful image upload!"}
+
+
+@router.get("/image/get/outputs")
+async def get_output_images() -> list:
+    files = os.listdir("output/poke")
+    return files
+
+
+@router.get("/image/get/inputs")
+async def get_input_images() -> list:
+    files = os.listdir("output/poke")
+    return files
