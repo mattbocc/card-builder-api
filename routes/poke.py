@@ -1,7 +1,9 @@
 import os
 import logging
 import base64
+from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
 from openai import OpenAI
 from dotenv import load_dotenv
 from models.poke_card import Poke
@@ -96,5 +98,15 @@ async def get_output_images() -> list:
 
 @router.get("/image/get/inputs")
 async def get_input_images() -> list:
-    files = os.listdir("output/poke")
+    files = os.listdir("input/poke")
     return files
+
+
+@router.get("/image/get/static/{fileName}")
+async def get_static_image(fileName: str) -> str:
+    file_path = Path("output/poke") / fileName
+
+    if not file_path.exists():
+        raise HTTPException(status_code=500, detail={"File not found"})
+
+    return FileResponse(file_path)
