@@ -7,29 +7,20 @@ from fastapi.responses import FileResponse
 from openai import OpenAI
 from dotenv import load_dotenv
 from models.poke_card import Poke
-from dictionaries.additional_poke_prompts import card_type
+from dictionaries.typing_prompts import card_type
+from dictionaries.event_prompts import special_event
 
 
 load_dotenv()
 
 client = OpenAI()
 
-prompt = """
-
-1. Analyze the Image: Examine the original image to understand its composition, color palette, and key elements.
-2. Study Studio Ghibli Style: Familiarize yourself with the distinctive features of Studio Ghibli's art style, including: - Soft, vibrant color palettes - Detailed backgrounds with a focus on nature - Expressive character designs with large, emotive eyes - Use of light and shadow to create depth
-3. Sketch the Transformation: Create a preliminary sketch that incorporates the Ghibli style elements into the original image.
-4. Apply Color and Texture: Use soft, vibrant colors typical of Studio Ghibli films. Pay attention to textures that mimic traditional animation techniques.
-5. Refine Details: Add intricate details to the background and characters, ensuring they align with the Ghibli aesthetic, ensure humans have their mouths are closed.
-7. Final Adjustments: Make any necessary adjustments to lighting, contrast, and saturation to achieve a cohesive look.
-
-"""
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/poke")
 
 
-def encode_image(file_path: str = "input/poke/input_image.jpeg"):
+def encode_image(file_path: str):
     with open(file_path, "rb") as f:
         base64_image = base64.b64encode(f.read()).decode("utf-8")
     return base64_image
@@ -37,25 +28,46 @@ def encode_image(file_path: str = "input/poke/input_image.jpeg"):
 
 @router.post("/image/create")
 def create_card(poke: Poke):
-    card_prompt = prompt + card_type[poke.type]
-    print(card_prompt)
+    prompt = f"""
+        Analyze the Image: Examine the first original image in the content list to understand its composition, color palette, and key elements.
+        Study Studio Ghibli Style: Familiarize yourself with the distinctive features of Studio Ghibli's art style, including: - Soft, vibrant color palettes - Detailed backgrounds with a focus on nature - Expressive character designs with large, emotive eyes - Use of light and shadow to create depth
+        Sketch the Transformation: Create a preliminary sketch that incorporates the Ghibli style elements into the original image.
+        Apply Color and Texture: Use soft, vibrant colors typical of Studio Ghibli films. Pay attention to textures that mimic traditional animation techniques.
+        Refine Details: Add intricate details to the background and characters, ensuring they align with the Ghibli aesthetic, ensure humans have their mouths are closed.
+        {special_event[poke.special_event]["prompt"] if poke.special_event else card_type[poke.type]}
+        Final Adjustments: Make any necessary adjustments to lighting, contrast, saturation to achieve a cohesive look, and make sure there is no added text.
+    """
+
+    print(prompt)
+
+    input = [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "input_text",
+                    "text": prompt,
+                },
+                {
+                    "type": "input_image",
+                    "image_url": f"data:image/jpeg;base64,{encode_image(f'input/poke/{poke.image_name}')}",
+                },
+            ],
+        }
+    ]
+
+    for image in special_event[poke.special_event]["images"]:
+        input[0]["content"].append(
+            {
+                "type": "input_image",
+                "image_url": f"data:image/png;base64,{encode_image(image)}",
+            }
+        )
+    print(input)
+
     response = client.responses.create(
         model="gpt-5",
-        input=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": card_prompt,
-                    },
-                    {
-                        "type": "input_image",
-                        "image_url": f"data:image/jpeg;base64,{encode_image()}",
-                    },
-                ],
-            }
-        ],
+        input=input,
         tools=[
             {
                 "type": "image_generation",
@@ -72,7 +84,7 @@ def create_card(poke: Poke):
 
     if image_data:
         image_base64 = image_data[0]
-        with open("output/poke/us.png", "wb") as f:
+        with open(f"output/poke/{poke.image_name}", "wb") as f:
             f.write(base64.b64decode(image_base64))
     else:
         print(response.output.content)
