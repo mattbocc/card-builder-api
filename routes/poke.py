@@ -110,7 +110,7 @@ async def get_output_images() -> list:
 
 @router.get("/image/get/inputs")
 async def get_input_images() -> list:
-    files = os.listdir("input/poke")
+    files = os.listdir("input/poke/client")
     return files
 
 
