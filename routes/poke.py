@@ -32,13 +32,14 @@ def create_card(poke: Poke):
         Analyze the Image: Examine the first original image in the content list to understand its composition, color palette, and key elements.
         Study Studio Ghibli Style: Familiarize yourself with the distinctive features of Studio Ghibli's art style, including: - Soft, vibrant color palettes - Detailed backgrounds with a focus on nature - Expressive character designs with large, emotive eyes - Use of light and shadow to create depth
         Sketch the Transformation: Create a preliminary sketch that incorporates the Ghibli style elements into the original image.
-        Apply Color and Texture: Use soft, vibrant colors typical of Studio Ghibli films. Pay attention to textures that mimic traditional animation techniques.
-        Refine Details: Add intricate details to the background and characters, ensuring they align with the Ghibli aesthetic, ensure humans have their mouths are closed.
         {special_event[poke.special_event]["prompt"] if poke.special_event else card_type[poke.type]}
+        Apply Color and Texture: Use soft, vibrant colors typical of Studio Ghibli films. Pay attention to textures that mimic traditional animation techniques.
+        Refine Details: Add intricate details to the background and characters, ensuring they align with the Ghibli aesthetic.
         Final Adjustments: Make any necessary adjustments to lighting, contrast, saturation to achieve a cohesive look, and make sure there is no added text.
     """
 
     print(prompt)
+    print(poke.portrait)
 
     input = [
         {
@@ -50,7 +51,7 @@ def create_card(poke: Poke):
                 },
                 {
                     "type": "input_image",
-                    "image_url": f"data:image/jpeg;base64,{encode_image(f'input/poke/{poke.image_name}')}",
+                    "image_url": f"data:image/jpeg;base64,{encode_image(f'input/poke/client/{poke.image_name}')}",
                 },
             ],
         }
@@ -63,7 +64,6 @@ def create_card(poke: Poke):
                 "image_url": f"data:image/png;base64,{encode_image(image)}",
             }
         )
-    print(input)
 
     response = client.responses.create(
         model="gpt-5",
@@ -94,7 +94,7 @@ def create_card(poke: Poke):
 async def upload_image(file: UploadFile = File(...)):
     try:
         contents = await file.read()
-        with open(f"input/poke/{file.filename}", "wb") as f:
+        with open(f"input/poke/client/{file.filename}", "wb") as f:
             f.write(contents)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
