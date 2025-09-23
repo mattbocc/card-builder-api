@@ -1,12 +1,14 @@
 import os
 import logging
 import base64
+import pymongo
 from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 from openai import OpenAI
 from dotenv import load_dotenv
 from models.poke_card import Poke
+from models.order import Order
 from dictionaries.typing_prompts import card_type
 from dictionaries.event_prompts import special_event
 
@@ -122,3 +124,13 @@ async def get_static_image(fileName: str) -> str:
         raise HTTPException(status_code=500, detail={"File not found"})
 
     return FileResponse(file_path)
+
+
+router.post("/submit")
+
+
+async def submit_order(submission: Order) -> bool:
+    client = pymongo.MongoClient(os.getenv("MONGO_URI"))
+    database = client["card-builder"]
+    collection = database[os.getenv("DEV_COL")]
+    collection.insert_one(submission)
