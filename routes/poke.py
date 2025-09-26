@@ -42,6 +42,7 @@ def create_card(poke: Poke):
 
     print(prompt)
     print(poke.portrait)
+    print(poke)
 
     input = [
         {
@@ -59,13 +60,14 @@ def create_card(poke: Poke):
         }
     ]
 
-    for image in special_event[poke.special_event]["images"]:
-        input[0]["content"].append(
-            {
-                "type": "input_image",
-                "image_url": f"data:image/png;base64,{encode_image(image)}",
-            }
-        )
+    if poke.special_event:
+        for image in special_event[poke.special_event]["images"]:
+            input[0]["content"].append(
+                {
+                    "type": "input_image",
+                    "image_url": f"data:image/png;base64,{encode_image(image)}",
+                }
+            )
 
     response = client.responses.create(
         model="gpt-5",
