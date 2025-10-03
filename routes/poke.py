@@ -2,6 +2,7 @@ import os
 import logging
 import base64
 import pymongo
+from typing import Dict
 from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
@@ -17,6 +18,9 @@ load_dotenv()
 
 client = OpenAI()
 
+client = pymongo.MongoClient(os.getenv("MONGODB_URI"))
+db = client[os.getenv("DATABASE")]
+collection = db[os.getenv("COLLECTION")]
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/poke")
@@ -128,11 +132,11 @@ async def get_static_image(fileName: str) -> str:
     return FileResponse(file_path)
 
 
-router.post("/submit")
-
-
-async def submit_order(submission: Order) -> bool:
-    client = pymongo.MongoClient(os.getenv("MONGO_URI"))
-    database = client["card-builder"]
-    collection = database[os.getenv("DEV_COL")]
-    collection.insert_one(submission)
+@router.post("/etsy/submit")
+async def submit_order(submission: Dict) -> str:
+    try:
+        collection.insert_one(submission)
+        return "Successful etsy submission database!"
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail={"Error during submission"})
