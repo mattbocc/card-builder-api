@@ -18,8 +18,8 @@ load_dotenv()
 
 client = OpenAI()
 
-client = pymongo.MongoClient(os.getenv("MONGODB_URI"))
-db = client[os.getenv("DATABASE")]
+mongo_client = pymongo.MongoClient(os.getenv("MONGODB_URI"))
+db = mongo_client[os.getenv("DATABASE")]
 collection = db[os.getenv("COLLECTION")]
 
 logger = logging.getLogger(__name__)
@@ -41,12 +41,12 @@ def create_card(poke: Poke):
         {special_event[poke.special_event]["prompt"] if poke.special_event else card_type[poke.type]}
         Apply Color and Texture: Use soft, vibrant colors typical of Studio Ghibli films. Pay attention to textures that mimic traditional animation techniques.
         Refine Details: Add intricate details to the background and characters, ensuring they align with the Ghibli aesthetic.
-        Final Adjustments: Make any necessary adjustments to lighting, contrast, saturation to achieve a cohesive look, and make sure there is no added text.
+        Final Adjustments: Make any necessary adjustments to lighting, contrast, saturation to achieve a cohesive look, make sure mouths are closed, and ensure there is no added text.
     """
 
-    print(prompt)
-    print(poke.portrait)
-    print(poke)
+    # print(prompt)
+    # print(poke.portrait)
+    # print(poke)
 
     input = [
         {
