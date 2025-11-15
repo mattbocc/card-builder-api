@@ -135,7 +135,7 @@ async def get_static_image(fileName: str) -> str:
 @router.post("/etsy/submit")
 async def submit_order(submission: Dict) -> str:
     try:
-        collection.insert_one(submission)
+        collection.insert_one(submission.get("submission"))
         return "Successful etsy submission database!"
     except Exception as e:
         print(e)
