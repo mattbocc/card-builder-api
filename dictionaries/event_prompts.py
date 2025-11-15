@@ -8,13 +8,14 @@ special_event = {
     },
     "christmas": {
         "images": [
-            "input/poke/halloween/santa-claus.png",
-            "input/poke/halloween/elf.png",
-            "input/poke/halloween/santa-hat.png",
+            "input/poke/christmas/santa-claus.png",
+            "input/poke/christmas/elf.png",
+            "input/poke/christmas/santa-hat.png",
         ],
         "prompt": """
-				Additional Christmas Aesthetic: Despite being heavily Ghibli themed, I want this card to have a Christmas theme to it. Add snowy nature background with christmas features littered all over.
-				Please use the attached Ghibli santa-claus and elf image a single time each in the generated picture but also add make any people wear the santa-hats.
+				Additional Christmas Aesthetic: Despite being heavily Ghibli themed, I want this card to have a Christmas theme to it.
+				Add a snowy nature background with christmas features littered all over.
+				Please use the attached Ghibli santa-hats to place on people's heads.
 			""",
     },
     "valentines": "",
