@@ -36,12 +36,12 @@ def encode_image(file_path: str):
 def create_card(poke: Poke):
     prompt = f"""
         Analyze the Image: Examine the first original image in the content list to understand its composition, color palette, and key elements.
-        Study Studio Ghibli Style: Familiarize yourself with the distinctive features of Studio Ghibli's art style, including: - Soft, vibrant color palettes - Detailed backgrounds with a focus on nature - Expressive character designs with large, emotive eyes - Use of light and shadow to create depth
+        Study Studio Ghibli Style: Familiarize yourself with the distinctive features of Studio Ghibli's art style, including: - Soft, vibrant color palettes - Detailed backgrounds with a focus on nature - Expressive character designs with large, emotive eyes - Use of light and shadow to create depth - make sure mouths are closed
         Sketch the Transformation: Create a preliminary sketch that incorporates the Ghibli style elements into the original image.
         {special_event[poke.special_event]["prompt"] if poke.special_event else card_type[poke.type]}
         Apply Color and Texture: Use soft, vibrant colors typical of Studio Ghibli films. Pay attention to textures that mimic traditional animation techniques.
         Refine Details: Add intricate details to the background and characters, ensuring they align with the Ghibli aesthetic.
-        Final Adjustments: Make any necessary adjustments to lighting, contrast, saturation to achieve a cohesive look, make sure mouths are closed, and ensure there is no added text.
+        Final Adjustments: Make any necessary adjustments to lighting, contrast, saturation to achieve a cohesive look, and ensure there is no added text.
     """
 
     # print(prompt)
